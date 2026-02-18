@@ -30,7 +30,7 @@ void xUS100SensorRead(){
 			tens += '0';
 			ones += '0';
 			
-			uint8_t message[] = {tens, ones, ' ', 'd', 'e', 'g', ' ', 'F', '\n'};
+			uint8_t message[] = {tens, ones, ' ', 'd', 'e', 'g', ' ', 'F', '\n', '\r'};
 			
 			USART_Write(USART2, message, sizeof(message));
 		}
@@ -41,23 +41,31 @@ void xUS100SensorRead(){
 			BaseType_t dist = 0;
 			xQueueReceive(reading, &dist, portMAX_DELAY);
 			
+//			uint8_t a = dist;
+//			uint8_t b = dist >> 8;
+//			uint8_t c = dist >> 16;
+//			uint8_t d = dist >> 24;
+//			
+//			uint8_t new_dist[] = {a, b, c, d, 'A', '\n', '\r'};			
+//			USART_Write(USART2, new_dist, sizeof(new_dist));
+			
+			
 			//float f_dist = (float) dist;
-			dist *= 10;
+			dist *= 100;
 			dist /= 2.54;
 			
-			uint8_t hundreds = dist / 1000;
-			uint8_t tens = ((uint8_t)(dist / 100)) % 10;
-			uint8_t ones = ((uint8_t) dist / 10) % 10;
+			uint8_t hundreds = (dist / 1000);
+			uint8_t tens = ((dist / 100)) % 10;
+			uint8_t ones = (dist / 10) % 10;
 			
 			hundreds += '0';
 			tens += '0';
 			ones += '0';
 			
-			uint8_t message[] = {hundreds, tens, ones, ' ', 'i', 'n', 'c', 'h', 'e', 's', '\n'};
+			uint8_t message[] = {hundreds, tens, ones, ' ', 'i', 'n', 'c', 'h', 'e', 's', '\n', '\r'};
 			
-			USART_Write(USART2, message, sizeof(message));			
+			USART_Write(USART2, message, sizeof(message));		
 		}
-	
 	}
 }
 
@@ -80,6 +88,7 @@ void USART1_IRQHandler(){
 	
 	BaseType_t lengthened_buffer = (BaseType_t) ((buffer[0] & 0x00FF) + ((buffer[1] << 8) & 0xFF00));
 	xQueueSendToBackFromISR(reading, &lengthened_buffer, NULL);
+	//uint8_t steve = 0;
 	//USART_Write(USART2, buffer, 2);
 	
 	//Parse the data
